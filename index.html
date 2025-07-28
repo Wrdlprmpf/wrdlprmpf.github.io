@@ -1,7 +1,1341 @@
-<!DOCTYPE html>
-<html>
-<body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
-</body>
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Balancing Act: Surveillance and Privacy in Cybersecurity</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+
+        <style>
+            body {
+                font-family: "Inter", sans-serif;
+                background-color: rgb(192, 201, 208);
+                color: #343a40;
+            }
+            .nav-link {
+                transition:
+                    color 0.3s ease,
+                    border-bottom-color 0.3s ease;
+                border-bottom: 2px solid transparent;
+            }
+            .nav-link:hover,
+            .nav-link.active {
+                color: #0891b2; /* cyan-600 */
+                border-bottom-color: #0891b2;
+            }
+            .section-card {
+                background-color: black;
+                color: white;
+                border-radius: 0.75rem;
+                box-shadow:
+                    0 4px 6px -1px rgb(0 0 0 / 0.1),
+                    0 2px 4px -2px rgb(0 0 0 / 0.1);
+                transition:
+                    transform 0.3s ease,
+                    box-shadow 0.3s ease;
+            }
+            .section-card:hover {
+                transform: translateY(-5px);
+                box-shadow:
+                    0 10px 15px -3px rgb(0 0 0 / 0.1),
+                    0 4px 6px -2px rgb(0 0 0 / 0.1);
+            }
+            .chart-container {
+                position: relative;
+                width: 100%;
+                max-width: 500px;
+                margin-left: auto;
+                margin-right: auto;
+                height: 300px;
+                max-height: 400px;
+            }
+            @media (min-width: 768px) {
+                .chart-container {
+                    height: 350px;
+                }
+            }
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 50;
+                opacity: 0;
+                visibility: hidden;
+                transition:
+                    opacity 0.3s ease,
+                    visibility 0.3s ease;
+            }
+            .modal-overlay.visible {
+                opacity: 1;
+                visibility: visible;
+            }
+            .modal-content {
+                background-color: white;
+                padding: 2rem;
+                border-radius: 0.5rem;
+                max-width: 90%;
+                width: 600px;
+                max-height: 90vh;
+                overflow-y: auto;
+                transform: scale(0.95);
+                transition: transform 0.3s ease;
+            }
+            .modal-overlay.visible .modal-content {
+                transform: scale(1);
+            }
+        </style>
+    </head>
+    <body class="antialiased">
+        <header
+            class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40"
+        >
+            <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-xl font-bold text-cyan-700">
+                            Balancing Act (The Ethical Limit)
+                        </h1>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a
+                                href="#conflict"
+                                class="nav-link px-3 py-2 text-sm font-medium"
+                                >The Conflict</a
+                            >
+                            <a
+                                href="#paradox"
+                                class="nav-link px-3 py-2 text-sm font-medium"
+                                >The Paradox</a
+                            >
+                            <a
+                                href="#tech"
+                                class="nav-link px-3 py-2 text-sm font-medium"
+                                >The Tech</a
+                            >
+                            <a
+                                href="#ethics"
+                                class="nav-link px-3 py-2 text-sm font-medium"
+                                >Ethics</a
+                            >
+                            <a
+                                href="#cases"
+                                class="nav-link px-3 py-2 text-sm font-medium"
+                                >Case Studies</a
+                            >
+                            <a
+                                href="#rules"
+                                class="nav-link px-3 py-2 text-sm font-medium"
+                                >Regulations</a
+                            >
+                            <a
+                                href="#strategies"
+                                class="nav-link px-3 py-2 text-sm font-medium"
+                                >Strategies</a
+                            >
+                            <a
+                                href="#future"
+                                class="nav-link px-3 py-2 text-sm font-medium"
+                                >The Future</a
+                            >
+                            <a
+                                href="#references"
+                                class="nav-link px-3 py-2 text-sm font-medium"
+                                >References</a
+                            >
+                        </div>
+                    </div>
+                    <div class="md:hidden">
+                        <button
+                            id="mobile-menu-button"
+                            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-cyan-500"
+                        >
+                            <span class="sr-only">Open main menu</span>
+                            <svg
+                                class="h-6 w-6"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 6h16M4 12h16m-7 6h7"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+            <div id="mobile-menu" class="md:hidden hidden">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a
+                        href="#conflict"
+                        class="block nav-link px-3 py-2 rounded-md text-base font-medium"
+                        >The Conflict</a
+                    >
+                    <a
+                        href="#paradox"
+                        class="block nav-link px-3 py-2 rounded-md text-base font-medium"
+                        >The Paradox</a
+                    >
+                    <a
+                        href="#tech"
+                        class="block nav-link px-3 py-2 rounded-md text-base font-medium"
+                        >The Tech</a
+                    >
+                    <a
+                        href="#ethics"
+                        class="block nav-link px-3 py-2 rounded-md text-base font-medium"
+                        >Ethics</a
+                    >
+                    <a
+                        href="#cases"
+                        class="block nav-link px-3 py-2 rounded-md text-base font-medium"
+                        >Case Studies</a
+                    >
+                    <a
+                        href="#rules"
+                        class="block nav-link px-3 py-2 rounded-md text-base font-medium"
+                        >Regulations</a
+                    >
+                    <a
+                        href="#strategies"
+                        class="block nav-link px-3 py-2 rounded-md text-base font-medium"
+                        >Strategies</a
+                    >
+                    <a
+                        href="#future"
+                        class="block nav-link px-3 py-2 rounded-md text-base font-medium"
+                        >The Future</a
+                    >
+                    <a
+                        href="#references"
+                        class="block nav-link px-3 py-2 rounded-md text-base font-medium"
+                        >References</a
+                    >
+                </div>
+            </div>
+        </header>
+
+        <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            <!-- Download PDF Button - Top Left -->
+            <div class="mb-8">
+                <button
+                    id="download-pdf-btn"
+                    class="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-3 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+                    title="Download Full Report as PDF"
+                >
+                    <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        ></path>
+                    </svg>
+                    <span>Download Full Report (PDF)</span>
+                </button>
+            </div>
+
+            <section class="text-center mb-16">
+                <h2
+                    class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4"
+                >
+                    Surveillance vs. Privacy
+                </h2>
+                <p class="max-w-3xl mx-auto text-lg text-white-800">
+                    Continuous monitoring is essential in cybersecurity with the
+                    demands continuous monitoring to identify vulnerabilities,
+                    detect intrusions, and conduct forensic investigations.
+                    However, this data collection raises privacy, autonomy, and
+                    trust concerns. Balancing robust security with privacy is
+                    crucial. This topic examines current methods and provides
+                    guidance for responsible monitoring strategies, while
+                    informing individuals about their rights and
+                    responsibilities.
+                </p>
+            </section>
+
+            <section id="conflict" class="mb-20 scroll-mt-20">
+                <h3 class="text-3xl font-bold text-center text-gray-800 mb-2">
+                    The Core Conflict
+                </h3>
+                <p class="text-center text-white-600 mb-10 max-w-2xl mx-auto">
+                    Modern cybersecurity relies on data to keep us safe, yet the
+                    same data collecting might jeopardize our privacy. This
+                    section discusses both sides of the coin, including the
+                    necessity of surveillance and the fundamental significance
+                    of privacy.
+                </p>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="section-card p-8">
+                        <h4 class="text-2xl font-bold text-cyan-700 mb-4">
+                            Necessities of Security
+                        </h4>
+                        <p class="text-gray-400">
+                            Continuous monitoring is essential for defending
+                            against modern cyber threats. It enables enterprises
+                            to detect intrusions, identify vulnerabilities, and
+                            investigate breaches. Proactive defense involves
+                            collecting and analyzing large amounts of data on
+                            system and user activity to prevent threats from
+                            causing damage.
+                        </p>
+                    </div>
+                    <div class="section-card p-8">
+                        <h4 class="text-2xl font-bold text-amber-600 mb-4">
+                            The Right of Privacy
+                        </h4>
+                        <p class="text-gray-400">
+                            Privacy is a human right to control one's own
+                            private data. In the digital age, we have power over
+                            how data about our activities, interactions, and
+                            personal life is collected, utilized, and shared.
+                            Excessive surveillance, even for security purposes,
+                            can reduce autonomy, suppress freedom of speech, and
+                            compromise the trust between individuals and
+                            organizations.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="paradox" class="mb-20 scroll-mt-20">
+                <h3 class="text-3xl font-bold text-center text-gray-800 mb-2">
+                    The Privacy Paradox
+                </h3>
+                <p class="text-center text-gray-800 mb-10 max-w-2xl mx-auto">
+                    Individuals frequently express a high level of concern about
+                    their online privacy while easily engaging in actions that
+                    threaten it, such as sharing personal data for minor
+                    conveniences.
+                </p>
+                <div class="section-card p-6 md:p-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h4 class="text-2xl text-yellow-500 font-bold mb-4">
+                                Stated Concern vs. Actual Behavior
+                            </h4>
+                            <p class="text-gray-400 mb-4">
+                                According to the Privacy Paradox, individuals
+                                may claim to be concerned about their privacy,
+                                but often exchange personal information for
+                                little benefits such as free apps or discounts.
+                                This is not due to a lack of concern, but rather
+                                to cognitive biases, misleading designs ("dark
+                                patterns"), and resignation in the face of
+                                elaborate privacy regulations.
+                            </p>
+                            <p class="text-gray-400 mb-4">
+                                Understanding the Privacy Paradox is vital for
+                                organizations. If the organizations started to
+                                assume people don't value privacy based on their
+                                actions, they may implement more aggressive
+                                monitoring. While a better approach is to
+                                recognize this paradox and build
+                                privacy-protective systems by default.
+                            </p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="privacyParadoxChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tech" class="mb-20 scroll-mt-20">
+                <h3 class="text-3xl font-bold text-center text-gray-800 mb-2">
+                    How Monitoring Works: The Tech Explained
+                </h3>
+                <p class="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
+                    The level of detail of the obtained data distinguishes
+                    between excessive surveillance and required security.
+                    <br />
+                    To understand the privacy debate, we need to understand the
+                    tools involved. This section breaks down common data
+                    collection technologies, explaining their role in security
+                    and their potential impact on privacy. Click on each
+                    technology to learn more.
+                </p>
+                <div id="tech-accordion" class="space-y-4"></div>
+            </section>
+
+            <section id="ethics" class="mb-20 scroll-mt-20">
+                <h3 class="text-3xl font-bold text-center text-gray-800 mb-2">
+                    Ethical Frameworks
+                </h3>
+                <p class="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
+                    The ethical standards governing cybersecurity strike a
+                    balance between strong security and respect for individual
+                    rights and community well being. Transparency,
+                    accountability, justice, and privacy are critical. The
+                    expanding use of AI in cybersecurity highlights these
+                    themes. A truly ethical approach must incorporate
+                    deontological principles, treating fundamental privacy
+                    rights as non-negotiable entitlements, and creating strong,
+                    rights-based frameworks to supplement risk-benefit
+                    calculations.
+                </p>
+            </section>
+
+            <section id="cases" class="mb-20 scroll-mt-20">
+                <h3 class="text-3xl font-bold text-center text-gray-800 mb-2">
+                    Case Studies: When Balancing Fails
+                </h3>
+                <p class="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
+                    History's largest data breaches are powerful lessons in the
+                    consequences of inadequate cybersecurity and ethical
+                    failures. Explore the chart of regulatory fines and click on
+                    a company logo to see the story behind the breach.
+                </p>
+                <div class="section-card p-6 md:p-8">
+                    <h4 class="text-2xl font-bold text-center mb-6">
+                        A High Price for Failure: Data Breach Fines
+                    </h4>
+                    <div class="chart-container h-96 max-h-[500px] mb-10">
+                        <canvas id="breachFinesChart"></canvas>
+                    </div>
+                    <div
+                        class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-4 text-center"
+                        id="case-studies-grid"
+                    ></div>
+                </div>
+            </section>
+
+            <section id="rules" class="mb-20 scroll-mt-20">
+                <h3 class="text-3xl font-bold text-center text-gray-800 mb-2">
+                    The Rulebook: Global Regulations
+                </h3>
+                <p class="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
+                    In response to growing privacy concerns, governments
+                    worldwide have established legal frameworks to protect
+                    personal data. This section provides an overview of key
+                    regulations that shape how organizations must approach
+                    cybersecurity and privacy. Select a regulation to see its
+                    core principles.
+                </p>
+                <div class="section-card p-6 md:p-8">
+                    <div class="border-b border-gray-200 mb-4">
+                        <nav
+                            class="-mb-px flex space-x-4 md:space-x-8"
+                            aria-label="Tabs"
+                            id="regulation-tabs"
+                        ></nav>
+                    </div>
+                    <div id="regulation-content"></div>
+                </div>
+            </section>
+
+            <section id="strategies" class="mb-20 scroll-mt-20">
+                <h3 class="text-3xl font-bold text-center text-gray-800 mb-2">
+                    Finding the Balance: Responsible Strategies
+                </h3>
+                <p class="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
+                    Protecting data is a shared responsibility. This section
+                    offers actionable guidance for both organizations
+                    implementing monitoring systems and individuals navigating
+                    the digital world.
+                </p>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="section-card p-8">
+                        <h4 class="text-2xl font-bold text-cyan-700 mb-4">
+                            For Organizations
+                        </h4>
+                        <ul
+                            id="org-strategies"
+                            class="space-y-3 text-gray-400 list-inside"
+                        ></ul>
+                    </div>
+                    <div class="section-card p-8">
+                        <h4 class="text-2xl font-bold text-amber-600 mb-4">
+                            For Individuals
+                        </h4>
+                        <ul
+                            id="ind-strategies"
+                            class="space-y-3 text-gray-400 list-inside"
+                        ></ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="future" class="mb-20 scroll-mt-20">
+                <h3 class="text-3xl font-bold text-center text-gray-800 mb-2">
+                    The Future Horizon
+                </h3>
+                <p class="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
+                    The landscape of cybersecurity and privacy is constantly
+                    changing. Here we look at two emerging
+                    technologies—Artificial Intelligence and Quantum
+                    Computing—and their profound implications for the future of
+                    this balancing act.
+                </p>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="section-card p-8">
+                        <h4 class="text-2xl font-bold text-cyan-800 mb-4">
+                            The AI Frontier
+                        </h4>
+                        <p class="text-gray-400">
+                            AI can revolutionize threat detection by analyzing
+                            patterns at a scale humans cannot. However, it also
+                            presents risks: biased algorithms can lead to unfair
+                            targeting, and the vast data AI requires for
+                            training amplifies privacy concerns. The key
+                            challenge is to build an "algorithmic conscience" by
+                            developing transparent, fair, and accountable AI
+                            systems.
+                        </p>
+                    </div>
+                    <div class="section-card p-8">
+                        <h4 class="text-2xl font-bold text-yellow-800 mb-4">
+                            The Quantum Threat
+                        </h4>
+                        <p class="text-gray-400">
+                            Quantum computers pose a long-term threat to our
+                            current encryption standards, potentially rendering
+                            much of our "secure" data vulnerable. This creates
+                            the urgent ethical need to transition to
+                            "Post-Quantum Cryptography." The risk of "harvest
+                            now, decrypt later" attacks means that data stolen
+                            today could be unlocked in the future, making
+                            proactive adaptation a critical responsibility.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="references" class="mb-20 scroll-mt-20">
+                <div class="section-card overflow-hidden">
+                    <button
+                        id="references-toggle"
+                        class="w-full text-left p-6 flex justify-between items-center bg-gray-900 hover:bg-gray-800 focus:outline-none transition-colors"
+                    >
+                        <h3 class="text-2xl font-bold text-white">
+                            References
+                        </h3>
+                        <span
+                            class="transform transition-transform duration-300 text-cyan-400"
+                        >
+                            <svg
+                                class="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M19 9l-7 7-7-7"
+                                ></path>
+                            </svg>
+                        </span>
+                    </button>
+                    <div
+                        id="references-content"
+                        class="hidden p-6 border-t border-gray-700"
+                    >
+                        <div class="space-y-4 text-gray-300">
+                            1. (PDF) Ethics in Artificial Intelligence: an
+                            Approach to Cybersecurity - ResearchGate, Zugriff am
+                            Juni 29, 2025,
+                            https://www.researchgate.net/publication/377180421_Ethics_in_Artificial_Intelligence_an_Approach_to_Cybersecurity
+                            <br /><br />
+                            2. Privacy Concerns Raised by Pervasive User Data
+                            Collection ... - arXiv, Zugriff am Juni 29, 2025,
+                            https://arxiv.org/abs/2202.04313
+                            <br /><br />
+                            3. Pervasive User Data Collection from Cyberspace:
+                            Privacy Concerns ..., Zugriff am Juni 29, 2025,
+                            https://www.mdpi.com/2410-387X/8/1/5
+                            <br /><br />
+                            4. (PDF) BALANCING EMPLOYEE PRIVACY AND CYBER
+                            SECURITY ..., Zugriff am Juni 29, 2025,
+                            https://www.researchgate.net/publication/389711296_BALANCING_EMPLOYEE_PRIVACY_AND_CYBER_SECURITY_IN_REMOTE_WORK_ETHICAL_AND_LEGAL_CHALLENGES
+                            <br /><br />
+                            5. Private Eyes, They See Your Every Move: Workplace
+                            Surveillance ..., Zugriff am Juni 29, 2025,
+                            https://pmc.ncbi.nlm.nih.gov/articles/PMC11300163/
+                            <br /><br />
+                            6. arxiv.org, Zugriff am Juni 29, 2025,
+                            https://arxiv.org/abs/2311.10165
+                            <br /><br />
+                            7. Cybersecurity and Data Privacy | AmTrust
+                            Insurance, Zugriff am Juni 29, 2025,
+                            https://amtrustfinancial.com/blog/small-business/cybersecurity-vs-data-privacy
+                            <br /><br />
+                            8. Breaking the Privacy Paradox: The Value of
+                            Privacy ... - Kirsten Martin, Zugriff am Juni 29,
+                            2025,
+                            https://kirstenmartin.net/wp-content/uploads/2015/04/BEQ-Martin-Privacy-Paradox.pdf
+                            <br /><br />
+                            9. The Myth of the Privacy Paradox - Scholarly
+                            Commons - The George ..., Zugriff am Juni 29, 2025,
+                            https://scholarship.law.gwu.edu/cgi/viewcontent.cgi?article=2738&context=faculty_publications
+                            <br /><br />
+                            10. The Privacy Paradox: Present and Future –
+                            Digital Privacy ..., Zugriff am Juni 29, 2025,
+                            https://ecampusontario.pressbooks.pub/digitalprivacyleadershipandpolicy/chapter/the-privacy-paradox-present-and-future/
+                            <br /><br />
+                            11. ETHICS OF PRIVACY IN CYBERSECURITY: PROTECTING
+                            INDIVIDUAL AUTONOMY THROUGH TECHNOLOGY - IRJMETS,
+                            Zugriff am Juni 29, 2025,
+                            https://www.irjmets.com/uploadedfiles/paper//issue_10_october_2024/62448/final/fin_irjmets1729144448.pdf
+                            <br /><br />
+                            12. Ethics and AI: navigating the cybersecurity and
+                            privacy tightrope | Insights | UK Finance, Zugriff
+                            am Juni 29, 2025,
+                            https://www.ukfinance.org.uk/news-and-insight/blog/ethics-and-ai-navigating-cybersecurity-and-privacy-tightrope
+                            <br /><br />
+                            13. The impact of AI in data privacy protection -
+                            Lumenalta, Zugriff am Juni 29, 2025,
+                            https://lumenalta.com/insights/the-impact-of-ai-in-data-privacy-protection
+                            <br /><br />
+                            14. Putting the privacy paradox to the test_ Online
+                            privacy and security ..., Zugriff am Juni 29, 2025,
+                            https://ris.utwente.nl/ws/portalfiles/portal/102272216/putting.pdf
+                            <br /><br />
+                            15. Deep Packet Inspection (DPI) Explained: OSI
+                            Layers, Real-World Applications & Ethical
+                            Considerations | Splunk, Zugriff am Juni 29, 2025,
+                            https://www.splunk.com/en_us/blog/learn/deep-packet-inspection-dpi.html
+                            <br />
+                            16. What is DPI (Deep Packet Inspection)? - Portnox,
+                            Zugriff am Juni 29, 2025,
+                            https://www.portnox.com/cybersecurity-101/what-is-dpi/
+                            <br /><br />
+                            17. What Is Behavioral Analytics? - CrowdStrike,
+                            Zugriff am Juni 29, 2025,
+                            https://www.crowdstrike.com/content/crowdstrike-www/locale-sites/gb/en-gb/cybersecurity-101/exposure-management/behavioral-analytics
+                            <br /><br />
+                            18. Behavioral Analytics in Cybersecurity -
+                            Securonix, Zugriff am Juni 29, 2025,
+                            https://www.securonix.com/blog/behavioral-analytics-in-cybersecurity/
+                            <br /><br />
+                            19. Understanding the Implications and Prevention of
+                            Data Breaches - EC-Council University, Zugriff am
+                            Juni 29, 2025,
+                            https://www.eccu.edu/blog/data-breaches-threats-and-consequences/
+                            <br /><br />
+                            20. U.S. Laws Regarding Workplace Monitoring of
+                            Employees - Setyan Law, Zugriff am Juni 29, 2025,
+                            https://setyanlaw.com/workplace-cameras-invasion-privacy-us-law/
+                            <br /><br />
+                            21. The State of Employee Privacy and Surveillance
+                            in 2024 | Kisi, Zugriff am Juni 29, 2025,
+                            https://www.getkisi.com/blog/state-employee-privacy-surveillance
+                            <br /><br />
+                            22. 51 Biggest Data Breach Fines, Penalties and
+                            Settlements, Zugriff am Juni 29, 2025,
+                            https://www.getastra.com/blog/security-audit/data-breach-fines-and-penalties/
+                            <br /><br />
+                            23. 5 Real-life Data Ethics Examples - Digital
+                            Adoption, Zugriff am Juni 29, 2025,
+                            https://www.digital-adoption.com/data-ethics-examples/
+                            <br /><br />
+                            24. Arisa Health to Pay $1.9 Million to Settle Data
+                            Breach Litigation, Zugriff am Juni 29, 2025,
+                            https://www.hipaajournal.com/arisa-health-data-breach-settlement/
+                            <br /><br />
+                            25. GDPR Cybersecurity Compliance: A Definitive
+                            Guide | FireMon, Zugriff am Juni 29, 2025,
+                            https://www.firemon.com/blog/gdpr-cybersecurity-compliance/
+                            <br /><br />
+                            26. GDPR and Cybersecurity: Best Practices - Number
+                            Analytics, Zugriff am Juni 29, 2025,
+                            https://www.numberanalytics.com/blog/gdpr-and-cybersecurity-best-practices
+                            <br /><br />
+                            27. The Impact of Data Privacy Regulations on
+                            Cybersecurity Strategies ..., Zugriff am Juni 29,
+                            2025,
+                            https://www.insidebusiness.com/the-impact-of-data-privacy-regulations-on-cybersecurity-strategies/
+                            <br /><br />
+                            28. NIST Privacy Framework - Hyperproof, Zugriff am
+                            Juni 29, 2025,
+                            https://hyperproof.io/nist-privacy-framework/
+                            <br /><br />
+                            29. How the NIST Frameworks Can Benefit Your Privacy
+                            and Cybersecurity Programs, Zugriff am Juni 29,
+                            2025,
+                            https://www.armanino.com/articles/how-nist-frameworks-benefit-privacy-and-cybersecurity/
+                            <br /><br />
+                            30. What Is ISO 27001? A Comprehensive Guide to
+                            Information Security - Digital Guardian, Zugriff am
+                            Juni 29, 2025,
+                            https://www.digitalguardian.com/blog/what-iso-27001-comprehensive-guide-information-security
+                            <br /><br />
+                            31. Mastering ISO 27001 for Cybersecurity - Number
+                            Analytics, Zugriff am Juni 29, 2025,
+                            https://www.numberanalytics.com/blog/mastering-iso-27001-for-cybersecurity
+                            <br /><br />
+                            32. ENISA: Fit for Purpose? - Stiftung Neue
+                            Verantwortung, Zugriff am Juni 29, 2025,
+                            https://www.interface-eu.org/publications/enisa-fit-for-purpose
+                            <br /><br />
+                            33. ENISA: Home, Zugriff am Juni 29, 2025,
+                            https://www.enisa.europa.eu/
+                            <br /><br />
+                            34. Readiness Analysis for the Adoption and
+                            Evolution of Privacy Enhancing Technologies, Zugriff
+                            am Juni 29, 2025,
+                            https://www.enisa.europa.eu/publications/pets
+                            <br /><br />
+                            35. Privacy Enhancing Technologies Whitepaper - CoE
+                            DSC, Zugriff am Juni 29, 2025,
+                            https://coe-dsc.nl/wp-content/uploads/2023/09/CoE-DSC-Whitepaper-PETs.pdf
+                            <br /><br />
+                            36. Cybersecurity policies - ENISA - European Union,
+                            Zugriff am Juni 29, 2025,
+                            https://www.enisa.europa.eu/topics/state-of-cybersecurity-in-the-eu/cybersecurity-policies
+                            <br /><br />
+                            37. Exploring privacy issues in the age of AI - IBM,
+                            Zugriff am Juni 29, 2025,
+                            https://www.ibm.com/think/insights/ai-privacy
+                            <br /><br />
+                            38. Shaping AI's Future: The Importance of Ethical
+                            Development - Infosecurity Europe, Zugriff am Juni
+                            29, 2025,
+                            https://www.infosecurityeurope.com/en-gb/blog/future-thinking/future-ai-ethical-development.html
+                            <br /><br />
+                            39. What Is Quantum Computing's Threat to
+                            Cybersecurity? - Palo Alto Networks, Zugriff am Juni
+                            29, 2025,
+                            https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity
+                            <br /><br />
+                            40. CYBERSECURITY IMPLICATIONS OF QUANTUM COMPUTING
+                            AND ITS COMBINED USE WITH ARTIFICIAL INTELLIGENCE -
+                            UNISCI, Zugriff am Juni 29, 2025,
+                            https://www.unisci.es/wp-content/uploads/2025/01/UNISCIDP67-5ANDREA.pdf
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="bg-gray-800 text-white mt-20">
+            <div
+                class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center"
+            >
+                <p class="text-sm text-gray-400 mt-2">
+                    By <br />
+                    Nicolas Wetscher <br />& <br />Eltokhy Rezk, Osama Tarek
+                    Ghanem
+                </p>
+            </div>
+        </footer>
+
+        <div id="modal" class="modal-overlay">
+            <div id="modal-content" class="modal-content"></div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const data = {
+                    technologies: [
+                        {
+                            title: "Data Exhaust & Tracking",
+                            security:
+                                "Analyzes user-generated data (Browse habits, clicks) to build profiles and detect anomalous behavior that might indicate a compromised account.",
+                            privacy:
+                                "Allows user profiling, which can be viewed by security engineers or even be shared with third party applications. Could lead to targeted.",
+                        },
+                        {
+                            title: "Deep Packet Inspection (DPI)",
+                            security:
+                                "Inspects the actual content of data packets (emails, messages) to find malware, data leaks, and other sophisticated threats that other methods miss.",
+                            privacy:
+                                "Highly intrusive, equivalent to reading your digital mail. It can enable mass surveillance and raises significant concerns about private communications.",
+                        },
+                        {
+                            title: "Behavioral Analytics (AI/ML)",
+                            security:
+                                "Uses AI to learn normal user behavior patterns and then flags deviations that could signal insider threats or advanced attacks.",
+                            privacy:
+                                "Relies on collecting comprehensive user activity data. Can lead to a constant sense of surveillance and carries the risk of false positives affecting innocent users.",
+                        },
+                        {
+                            title: "User Input Data Disclosure",
+                            security:
+                                "Monitors data actively entered by users (forms, messages) to prevent the leakage of sensitive company information (Data Loss Prevention).",
+                            privacy:
+                                "Risks the collection and potential leakage of personally identifiable or sensitive information, as this unstructured data is difficult to anonymize.",
+                        },
+                    ],
+                    caseStudies: [
+                        {
+                            name: "Amazon",
+                            fine: 886,
+                            year: 2021,
+                            reason: "Violation of GDPR. Accused of processing personal data for targeted advertising without user consent.",
+                        },
+                        {
+                            name: "Facebook",
+                            fine: 725,
+                            year: 2017,
+                            reason: "Cambridge Analytica scandal. Failed to protect user data from being harvested without consent for political profiling.",
+                        },
+                        {
+                            name: "Equifax",
+                            fine: 700,
+                            year: 2017,
+                            reason: "Failed to implement adequate security, including patching a known vulnerability, leading to a massive data breach of personal financial info.",
+                        },
+                        {
+                            name: "Google",
+                            fine: 170,
+                            year: 2019,
+                            reason: "Violation of the Children's Online Privacy Protection Act (COPPA) by collecting data on children via YouTube without parental consent.",
+                        },
+                        {
+                            name: "Didi Global",
+                            fine: 1200,
+                            year: 2021,
+                            reason: "Violated Chinese data privacy laws by collecting excessive user data without consent and failing to adequately protect it.",
+                        },
+                    ],
+                    regulations: [
+                        {
+                            name: "GDPR",
+                            title: "General Data Protection Regulation (EU)",
+                            content: {
+                                principles: [
+                                    "Lawfulness, Fairness, & Transparency",
+                                    "Purpose Limitation & Data Minimization",
+                                    "Accountability & User Consent",
+                                    "Integrity & Confidentiality",
+                                ],
+                                requirements: [
+                                    "Robust security measures (e.g., encryption, MFA)",
+                                    "72-hour breach notification window",
+                                    "Strict rules for data transfer outside the EU",
+                                ],
+                                penalties: [
+                                    "Up to 4% of annual global revenue or €20 million, whichever is higher",
+                                ],
+                            },
+                        },
+                        {
+                            name: "CCPA",
+                            title: "California Consumer Privacy Act (USA)",
+                            content: {
+                                principles: [
+                                    "Right to Know what data is collected",
+                                    "Right to Delete personal information",
+                                    "Right to Opt-Out of the sale of data",
+                                    "Right to Non-Discrimination for exercising rights",
+                                    "Data Portability",
+                                ],
+                                requirements: [
+                                    'Implement "reasonable security practices"',
+                                    "Provide clear privacy notices to consumers",
+                                ],
+                                penalties: [
+                                    "Up to $7,500 per violation",
+                                    "Statutory damages per consumer per incident",
+                                    "Class action lawsuits possible",
+                                ],
+                            },
+                        },
+                        {
+                            name: "HIPAA",
+                            title: "Health Insurance Portability and Accountability Act (USA)",
+                            content: {
+                                principles: [
+                                    "Privacy Rule for Protected Health Information (PHI)",
+                                    "Security Rule for electronic PHI (ePHI)",
+                                    "Strict limits on use and disclosure of health data",
+                                    "Breach Notification Rule",
+                                ],
+                                requirements: [
+                                    "Administrative, physical, and technical safeguards",
+                                ],
+                                penalties: [
+                                    "Annual cap of $1.5 million for identical violations",
+                                ],
+                            },
+                        },
+                        {
+                            name: "PDPA",
+                            title: "Personal Data Protection Act (Singapore)",
+                            content: {
+                                principles: [
+                                    "Consent for data collection, use, and disclosure",
+                                    ,
+                                ],
+                                requirements: [
+                                    "Implement reasonable security arrangements to protect personal data",
+                                ],
+                                penalties: [
+                                    "Varies by jurisdiction; significant fines and legal repercussions",
+                                ],
+                            },
+                        },
+                    ],
+                    strategies: {
+                        organization: [
+                            "<strong>Transparency & Consent:</strong> Clearly communicate all monitoring policies. Obtain explicit, informed consent.",
+                            "<strong>Data Minimization:</strong> Collect only the data that is absolutely necessary for a specific, legitimate security purpose.",
+                            "<strong>Proportionality:</strong> Use the least intrusive monitoring method possible to achieve the security goal.",
+                            "<strong>Robust Security:</strong> Implement strong encryption, access controls, and multi-factor authentication (MFA).",
+                            "<strong>Use PETs:</strong> Invest in Privacy-Enhancing Technologies (like differential privacy) to gain insights without compromising individual data.",
+                        ],
+                        individual: [
+                            "<strong>Know Your Rights:</strong> Understand your rights under regulations like GDPR and CCPA.",
+                            "<strong>Use Privacy Tools:</strong> Employ VPNs, encrypted messaging apps, and secure browsers to protect your digital footprint.",
+                            "<strong>Practice Digital Hygiene:</strong> Use strong, unique passwords, enable MFA, and be vigilant against phishing.",
+                            "<strong>Manage Permissions:</strong> Regularly review app permissions on your devices and revoke unnecessary access.",
+                            "<strong>Balance with Employer Needs:</strong> Understand and respect employer security policies, which protect both you and the organization.",
+                        ],
+                    },
+                };
+
+                function setupMobileMenu() {
+                    const menuButton =
+                        document.getElementById("mobile-menu-button");
+                    const mobileMenu = document.getElementById("mobile-menu");
+                    const navLinks = mobileMenu.querySelectorAll("a");
+
+                    menuButton.addEventListener("click", () => {
+                        mobileMenu.classList.toggle("hidden");
+                    });
+
+                    navLinks.forEach((link) => {
+                        link.addEventListener("click", () => {
+                            mobileMenu.classList.add("hidden");
+                        });
+                    });
+                }
+
+                function setupActiveNavLinks() {
+                    const sections = document.querySelectorAll("section[id]");
+                    const navLinks = document.querySelectorAll(".nav-link");
+
+                    window.addEventListener("scroll", () => {
+                        let current = "";
+                        sections.forEach((section) => {
+                            const sectionTop = section.offsetTop;
+                            if (pageYOffset >= sectionTop - 80) {
+                                current = section.getAttribute("id");
+                            }
+                        });
+
+                        navLinks.forEach((link) => {
+                            link.classList.remove("active");
+                            if (link.getAttribute("href").includes(current)) {
+                                link.classList.add("active");
+                            }
+                        });
+                    });
+                }
+
+                function renderPrivacyParadoxChart() {
+                    const ctx = document
+                        .getElementById("privacyParadoxChart")
+                        .getContext("2d");
+                    new Chart(ctx, {
+                        type: "doughnut",
+                        data: {
+                            labels: [
+                                "Stated Concern for Privacy",
+                                "Privacy-Protective Actions Taken",
+                            ],
+                            datasets: [
+                                {
+                                    data: [75, 25],
+                                    backgroundColor: [
+                                        "rgba(8, 145, 178, 0.7)", // cyan-600
+                                        "rgba(245, 158, 11, 0.7)", // amber-500
+                                    ],
+                                    borderColor: [
+                                        "rgba(8, 145, 178, 1)",
+                                        "rgba(245, 158, 11, 1)",
+                                    ],
+                                    borderWidth: 1,
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: "top",
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            let label = context.label || "";
+                                            if (label) {
+                                                label += ": ";
+                                            }
+                                            if (context.parsed !== null) {
+                                                label +=
+                                                    context.parsed +
+                                                    "% (Illustrative)";
+                                            }
+                                            return label;
+                                        },
+                                    },
+                                },
+                                title: {
+                                    display: true,
+                                    text: "Attitude vs. Behavior Gap",
+                                },
+                            },
+                        },
+                    });
+                }
+
+                function renderTechAccordion() {
+                    const accordion = document.getElementById("tech-accordion");
+                    data.technologies.forEach((tech, index) => {
+                        const item = document.createElement("div");
+                        item.className = "section-card overflow-hidden";
+                        item.innerHTML = `
+                <button class="w-full text-left p-5 flex justify-between items-center bg-gray-50 hover:bg-gray-100 focus:outline-none" data-index="${index}">
+                    <span class="text-xl font-semibold text-cyan-800">${tech.title}</span>
+                    <span class="transform transition-transform duration-300 text-cyan-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </span>
+                </button>
+                <div class="accordion-content hidden p-6 border-t border-gray-200">
+                    <h5 class="font-semibold text-lg mb-2 text-cyan-700">Role in Security:</h5>
+                    <p class="mb-4" style="color: rgb(164, 209, 195);">${tech.security}</p>
+                    <h5 class="font-semibold text-lg mb-2 text-rose-600">Privacy Concern:</h5>
+                    <p class="text-yellow-200">${tech.privacy}</p>
+                </div>
+            `;
+                        accordion.appendChild(item);
+                    });
+
+                    accordion.addEventListener("click", (e) => {
+                        const button = e.target.closest("button");
+                        if (!button) return;
+
+                        const content = button.nextElementSibling;
+                        const icon = button.querySelector("svg");
+
+                        button.parentElement.parentElement
+                            .querySelectorAll(".accordion-content")
+                            .forEach((el) => {
+                                if (el !== content) {
+                                    el.classList.add("hidden");
+                                    el.previousElementSibling
+                                        .querySelector("svg")
+                                        .classList.remove("rotate-180");
+                                }
+                            });
+
+                        content.classList.toggle("hidden");
+                        icon.classList.toggle("rotate-180");
+                    });
+                }
+
+                function renderBreachFinesChart() {
+                    const sortedCases = [...data.caseStudies].sort(
+                        (a, b) => b.fine - a.fine,
+                    );
+                    const ctx = document
+                        .getElementById("breachFinesChart")
+                        .getContext("2d");
+                    new Chart(ctx, {
+                        type: "bar",
+                        data: {
+                            labels: sortedCases.map((c) => c.name),
+                            datasets: [
+                                {
+                                    label: "Fine Amount (in millions USD)",
+                                    data: sortedCases.map((c) => c.fine),
+                                    backgroundColor: "rgba(220, 38, 38, 0.6)", // red-600
+                                    borderColor: "rgba(220, 38, 38, 1)",
+                                    borderWidth: 1,
+                                },
+                            ],
+                        },
+                        options: {
+                            indexAxis: "y",
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false,
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            const companyName = context.label;
+                                            const value = context.raw;
+                                            if (companyName === "Didi Global") {
+                                                return ` $${(value / 1000).toFixed(1)} Billion`;
+                                            }
+                                            return ` $${value.toLocaleString()} Million`;
+                                        },
+                                    },
+                                },
+                                title: {
+                                    display: false,
+                                },
+                            },
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function (value) {
+                                            return "$" + value + "M";
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    });
+                }
+
+                function renderCaseStudiesGrid() {
+                    const grid = document.getElementById("case-studies-grid");
+                    const modal = document.getElementById("modal");
+                    const modalContent =
+                        document.getElementById("modal-content");
+
+                    data.caseStudies.forEach((study) => {
+                        const item = document.createElement("div");
+                        item.className = "p-2";
+                        item.innerHTML = `
+                <button data-case="${study.name}" class="case-study-btn w-full h-20 bg-gray-100 rounded-lg flex items-center justify-center text-gray-700 font-bold text-lg hover:bg-gray-200 transition">
+                    ${study.name}
+                </button>
+            `;
+                        grid.appendChild(item);
+                    });
+
+                    grid.addEventListener("click", (e) => {
+                        const button = e.target.closest(".case-study-btn");
+                        if (button) {
+                            const caseName = button.dataset.case;
+                            const study = data.caseStudies.find(
+                                (s) => s.name === caseName,
+                            );
+                            const fineDisplay =
+                                study.name === "Didi Global"
+                                    ? `$${(study.fine / 1000).toFixed(1)} Billion Fine`
+                                    : `$${study.fine} Million Fine`;
+                            modalContent.innerHTML = `
+                    <h3 class="text-2xl font-bold mb-4">${study.name} (${study.year})</h3>
+                    <p class="text-4xl font-bold text-rose-600 mb-4">${fineDisplay}</p>
+                    <h4 class="font-semibold text-lg mb-2">Core Ethical Failure:</h4>
+                    <p class="text-gray-600">${study.reason}</p>
+                    <button id="modal-close" class="mt-6 w-full bg-cyan-600 text-white py-2 rounded-md hover:bg-cyan-700 transition">Close</button>
+                `;
+                            modal.classList.add("visible");
+                        }
+                    });
+
+                    modal.addEventListener("click", (e) => {
+                        if (
+                            e.target.id === "modal" ||
+                            e.target.closest("#modal-close")
+                        ) {
+                            modal.classList.remove("visible");
+                        }
+                    });
+                }
+
+                function renderRegulations() {
+                    const tabsContainer =
+                        document.getElementById("regulation-tabs");
+                    const contentContainer =
+                        document.getElementById("regulation-content");
+
+                    data.regulations.forEach((reg, index) => {
+                        const tab = document.createElement("button");
+                        tab.className = `regulation-tab whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300`;
+                        tab.textContent = reg.name;
+                        tab.dataset.target = reg.name;
+                        if (index === 0) {
+                            tab.classList.add(
+                                "border-cyan-500",
+                                "text-cyan-600",
+                            );
+                        }
+                        tabsContainer.appendChild(tab);
+                    });
+
+                    function updateContent(regName) {
+                        const reg = data.regulations.find(
+                            (r) => r.name === regName,
+                        );
+                        contentContainer.innerHTML = `
+                <h4 class="text-xl font-bold mb-4">${reg.title}</h4>
+                <div class="grid md:grid-cols-3 gap-5">
+
+                    <div>
+                        <h5 class="font-semibold mb-2" style="color: rgb(79, 106, 160);">Key Principles:</h5>
+                        <ul class="space-y-2 list-disc list-inside text-gray-400">
+                            ${reg.content.principles
+                                .map((p) => `<li>${p}</li>`)
+                                .join("")}
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h5 class="font-semibold mb-2" style="color: rgb(79, 106, 160);">Cybersecurity Requirements:</h5>
+                        <ul class="space-y-2 list-disc list-inside text-gray-400">
+                            ${reg.content.requirements
+                                .map((r) => `<li>${r}</li>`)
+                                .join("")}
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h5 class="font-semibold mb-2" style="color: rgb(79, 106, 160);">Penalties for Non-Compliance:</h5>
+                        <ul class="space-y-2 list-disc list-inside text-gray-400">
+                            ${reg.content.penalties
+                                .map((t) => `<li>${t}</li>`)
+                                .join("")}
+                        </ul>
+                    </div>
+                </div>
+            `;
+                    }
+
+                    tabsContainer.addEventListener("click", (e) => {
+                        const button = e.target.closest("button");
+                        if (button) {
+                            tabsContainer
+                                .querySelectorAll("button")
+                                .forEach((btn) => {
+                                    btn.classList.remove(
+                                        "border-cyan-500",
+                                        "text-cyan-600",
+                                    );
+                                    btn.classList.add(
+                                        "text-gray-500",
+                                        "hover:text-gray-700",
+                                        "hover:border-gray-300",
+                                    );
+                                });
+                            button.classList.add(
+                                "border-cyan-500",
+                                "text-cyan-600",
+                            );
+                            updateContent(button.dataset.target);
+                        }
+                    });
+
+                    updateContent(data.regulations[0].name);
+                }
+
+                function renderStrategies() {
+                    const orgList = document.getElementById("org-strategies");
+                    const indList = document.getElementById("ind-strategies");
+
+                    data.strategies.organization.forEach((item) => {
+                        const li = document.createElement("li");
+                        li.innerHTML = `<span class="text-cyan-600 mr-2">&#10003;</span>${item}`;
+                        orgList.appendChild(li);
+                    });
+
+                    data.strategies.individual.forEach((item) => {
+                        const li = document.createElement("li");
+                        li.innerHTML = `<span class="text-amber-600 mr-2">&#10003;</span>${item}`;
+                        indList.appendChild(li);
+                    });
+                }
+
+                function setupReferencesToggle() {
+                    const toggle = document.getElementById("references-toggle");
+                    const content =
+                        document.getElementById("references-content");
+                    const icon = toggle.querySelector("svg");
+                    const textarea = document.getElementById(
+                        "references-textarea",
+                    );
+                    const saveBtn = document.getElementById("save-references");
+                    const display =
+                        document.getElementById("references-display");
+                    const textDisplay =
+                        document.getElementById("references-text");
+
+                    const savedReferences =
+                        localStorage.getItem("savedReferences");
+                    if (savedReferences) {
+                        textarea.value = savedReferences;
+                        textDisplay.textContent = savedReferences;
+                        display.classList.remove("hidden");
+                    }
+
+                    toggle.addEventListener("click", () => {
+                        content.classList.toggle("hidden");
+                        icon.classList.toggle("rotate-180");
+                    });
+
+                    saveBtn.addEventListener("click", () => {
+                        const referencesText = textarea.value.trim();
+                        if (referencesText) {
+                            localStorage.setItem(
+                                "savedReferences",
+                                referencesText,
+                            );
+                            textDisplay.textContent = referencesText;
+                            display.classList.remove("hidden");
+                            alert("References saved successfully!");
+                        } else {
+                            alert("Please add some references before saving.");
+                        }
+                    });
+                }
+
+                function setupPdfDownload() {
+                    const downloadBtn =
+                        document.getElementById("download-pdf-btn");
+                    if (!downloadBtn) {
+                        console.error("Download button not found!");
+                        return;
+                    }
+
+                    downloadBtn.addEventListener("click", () => {
+                        console.log("Download button clicked!");
+                        const googleDriveUrl =
+                            "https://drive.google.com/uc?export=download&id=1x2mxJ-LyEf-bndFQmiiXE-dqjqq-dHJZ";
+                        window.open(googleDriveUrl, "_blank");
+                        alert(
+                            "Opening PDF in Google Drive. You can download it from there!",
+                        );
+                    });
+                }
+
+                window.addEventListener("DOMContentLoaded", setupPdfDownload);
+                setupMobileMenu();
+                setupActiveNavLinks();
+                renderPrivacyParadoxChart();
+                renderTechAccordion();
+                renderBreachFinesChart();
+                renderCaseStudiesGrid();
+                renderRegulations();
+                renderStrategies();
+                setupReferencesToggle();
+                setupPdfDownload();
+            });
+        </script>
+    </body>
 </html>
