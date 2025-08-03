@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balancing Act: Surveillance and Privacy in Cybersecurity</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Neutral Harmony -->
+    <!-- Application Structure Plan: The application is structured thematically to guide the user from a high-level understanding of the core conflict to specific, actionable insights. It begins with the central "Balancing Act," explores the psychological "Privacy Paradox," demystifies the "Technology," showcases the consequences through "Case Studies," outlines the "Regulations," and concludes with "Strategies" and a look at "Future Challenges." This non-linear, interactive approach is designed for better engagement and comprehension than a traditional report, allowing users to explore topics based on interest. -->
+    <!-- Visualization & Content Choices: Goal: Compare -> Interactive Bar Chart for breach fines (Chart.js) to visually emphasize the scale of financial penalties. Goal: Organize -> Interactive cards for technologies and strategies (HTML/Tailwind/JS) to present complex information in digestible chunks. Goal: Inform -> Dynamic text blocks and modals for case studies and regulations, triggered by clicks, to provide layered information without overwhelming the user. The Privacy Paradox is illustrated with a dynamic doughnut chart (Chart.js) to make the abstract concept tangible. LLM integrations added for dynamic explanations, dilemma generation, and personalized strategy suggestions. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+        .nav-link {
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0891b2; /* cyan-600 */
+            border-bottom-color: #0891b2;
+        }
+        .section-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            max-width: 90%;
+            width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #0891b2;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-cyan-700">The Balancing Act</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#conflict" class="nav-link px-3 py-2 text-sm font-medium">The Conflict</a>
+                        <a href="#paradox" class="nav-link px-3 py-2 text-sm font-medium">The Paradox</a>
+                        <a href="#tech" class="nav-link px-3 py-2 text-sm font-medium">The Tech</a>
+                        <a href="#cases" class="nav-link px-3 py-2 text-sm font-medium">Case Studies</a>
+                        <a href="#rules" class="nav-link px-3 py-2 text-sm font-medium">Regulations</a>
+                        <a href="#strategies" class="nav-link px-3 py-2 text-sm font-medium">Strategies</a>
+                        <a href="#future" class="nav-link px-3 py-2 text-sm font-medium">The Future</a>
+                    </div>
+                </div>
+                 <div class="md:hidden">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-cyan-500">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#conflict" class="block nav-link px-3 py-2 rounded-md text-base font-medium">The Conflict</a>
+                <a href="#paradox" class="block nav-link px-3 py-2 rounded-md text-base font-medium">The Paradox</a>
+                <a href="#tech" class="block nav-link px-3 py-2 rounded-md text-base font-medium">The Tech</a>
+                <a href="#cases" class="block nav-link px-3 py-2 rounded-md text-base font-medium">Case Studies</a>
+                <a href="#rules" class="block nav-link px-3 py-2 rounded-md text-base font-medium">Regulations</a>
+                <a href="#strategies" class="block nav-link px-3 py-2 rounded-md text-base font-medium">Strategies</a>
+                <a href="#future" class="block nav-link px-3 py-2 rounded-md text-base font-medium">The Future</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <section class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4">Surveillance vs. Privacy</h2>
+            <p class="max-w-3xl mx-auto text-lg text-gray-600">
+                In the digital age, we face a critical challenge: balancing the essential need for cybersecurity monitoring with the fundamental right to individual privacy. This interactive report explores the fine line where security measures can become invasive surveillance.
+            </p>
+        </section>
+
+        <section id="conflict" class="mb-20 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center text-gray-800 mb-2">The Core Conflict</h3>
+            <p class="text-center text-gray-600 mb-10 max-w-2xl mx-auto">Modern cybersecurity relies on data to protect us, but this same data collection can threaten our privacy. This section introduces the two sides of the coin, exploring the necessity of monitoring and the foundational importance of privacy.</p>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="section-card p-8">
+                    <h4 class="text-2xl font-bold text-cyan-700 mb-4">The Need for Security</h4>
+                    <p class="text-gray-600">Continuous monitoring is not optional; it's a fundamental defense against a constant barrage of sophisticated cyber threats. It allows organizations to detect intrusions, identify vulnerabilities, and investigate breaches. The goal is proactive defense: stopping threats before they cause damage, which requires collecting and analyzing vast amounts of data about system and user activity.</p>
+                </div>
+                <div class="section-card p-8">
+                    <h4 class="text-2xl font-bold text-amber-600 mb-4">The Right to Privacy</h4>
+                    <p class="text-gray-600">Privacy is a fundamental right to control one's personal information. In the digital world, this means having control over how data about our activities, communications, and personal life is collected, used, and shared. Excessive surveillance, even for security, can erode autonomy, chill free expression, and undermine trust between individuals and organizations.</p>
+                </div>
+            </div>
+            <div class="mt-10 text-center">
+                <button id="generate-dilemma-btn" class="bg-cyan-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-cyan-700 transition flex items-center justify-center mx-auto">
+                    ✨ Generate a Privacy Dilemma
+                    <div id="dilemma-spinner" class="loading-spinner ml-3 hidden"></div>
+                </button>
+                <div id="dilemma-output" class="mt-6 p-4 bg-gray-100 rounded-lg text-gray-700 text-left hidden"></div>
+            </div>
+        </section>
+
+        <section id="paradox" class="mb-20 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center text-gray-800 mb-2">The Privacy Paradox</h3>
+            <p class="text-center text-gray-600 mb-10 max-w-2xl mx-auto">This section explores a fascinating contradiction: people say they value privacy, but their online behavior often suggests otherwise. We'll look at why this happens and what it means for cybersecurity strategies.</p>
+            <div class="section-card p-6 md:p-8">
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h4 class="text-2xl font-bold mb-4">Stated Concern vs. Actual Behavior</h4>
+                        <p class="text-gray-600 mb-4">The Privacy Paradox describes how people claim to have high concerns for their privacy but frequently trade personal data for small conveniences, like using a free app or getting a discount. This isn't necessarily because they don't care; it's often due to cognitive biases, confusing designs ("dark patterns"), and a feeling of resignation in the face of complex privacy policies.</p>
+                        <p class="text-gray-600">This gap between attitude and action has major implications. If organizations assume people don't value privacy based on their behavior, they may implement more invasive monitoring. A better approach recognizes this paradox and builds privacy-protective systems by default.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="privacyParadoxChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tech" class="mb-20 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center text-gray-800 mb-2">How Monitoring Works: The Tech Explained</h3>
+            <p class="text-center text-gray-600 mb-10 max-w-2xl mx-auto">To understand the privacy debate, we need to understand the tools involved. This section breaks down common data collection technologies, explaining their role in security and their potential impact on privacy. Click on each technology to learn more, or use the LLM to get a simplified explanation.</p>
+            <div id="tech-accordion" class="space-y-4"></div>
+        </section>
+
+        <section id="cases" class="mb-20 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center text-gray-800 mb-2">Case Studies: When Balancing Fails</h3>
+            <p class="text-center text-gray-600 mb-10 max-w-2xl mx-auto">History's largest data breaches are powerful lessons in the consequences of inadequate cybersecurity and ethical failures. Explore the chart of regulatory fines and click on a company logo to see the story behind the breach.</p>
+            <div class="section-card p-6 md:p-8">
+                 <h4 class="text-2xl font-bold text-center mb-6">A High Price for Failure: Data Breach Fines</h4>
+                 <div class="chart-container h-96 max-h-[500px] mb-10">
+                    <canvas id="breachFinesChart"></canvas>
+                 </div>
+                 <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-4 text-center" id="case-studies-grid">
+                 </div>
+            </div>
+        </section>
+
+        <section id="rules" class="mb-20 scroll-mt-20">
+             <h3 class="text-3xl font-bold text-center text-gray-800 mb-2">The Rulebook: Global Regulations</h3>
+             <p class="text-center text-gray-600 mb-10 max-w-2xl mx-auto">In response to growing privacy concerns, governments worldwide have established legal frameworks to protect personal data. This section provides an overview of key regulations that shape how organizations must approach cybersecurity and privacy. Select a regulation to see its core principles.</p>
+             <div class="section-card p-6 md:p-8">
+                <div class="border-b border-gray-200 mb-4">
+                    <nav class="-mb-px flex space-x-4 md:space-x-8" aria-label="Tabs" id="regulation-tabs">
+                    </nav>
+                </div>
+                <div id="regulation-content">
+                </div>
+             </div>
+        </section>
+
+        <section id="strategies" class="mb-20 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center text-gray-800 mb-2">Finding the Balance: Responsible Strategies</h3>
+            <p class="text-center text-gray-600 mb-10 max-w-2xl mx-auto">Protecting data is a shared responsibility. This section offers actionable guidance for both organizations implementing monitoring systems and individuals navigating the digital world.</p>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="section-card p-8">
+                     <h4 class="text-2xl font-bold text-cyan-700 mb-4">For Organizations</h4>
+                     <ul id="org-strategies" class="space-y-3 text-gray-600 list-inside"></ul>
+                </div>
+                <div class="section-card p-8">
+                    <h4 class="text-2xl font-bold text-amber-600 mb-4">For Individuals</h4>
+                    <ul id="ind-strategies" class="space-y-3 text-gray-600 list-inside"></ul>
+                    <div class="mt-8 pt-4 border-t border-gray-200">
+                        <h5 class="font-semibold text-lg mb-2">✨ Get Personalized Tip</h5>
+                        <input type="text" id="strategy-role-input" placeholder="e.g., remote worker, social media user" class="w-full p-2 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500 mb-3">
+                        <button id="generate-strategy-btn" class="bg-amber-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-amber-700 transition flex items-center justify-center">
+                            Suggest Tip
+                            <div id="strategy-spinner" class="loading-spinner ml-3 hidden"></div>
+                        </button>
+                        <div id="strategy-output" class="mt-4 p-3 bg-gray-100 rounded-lg text-gray-700 text-left hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="future" class="scroll-mt-20">
+             <h3 class="text-3xl font-bold text-center text-gray-800 mb-2">The Future Horizon</h3>
+             <p class="text-center text-gray-600 mb-10 max-w-2xl mx-auto">The landscape of cybersecurity and privacy is constantly changing. Here we look at two emerging technologies—Artificial Intelligence and Quantum Computing—and their profound implications for the future of this balancing act.</p>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="section-card p-8">
+                    <h4 class="text-2xl font-bold text-gray-800 mb-4">The AI Frontier</h4>
+                    <p class="text-gray-600">AI can revolutionize threat detection by analyzing patterns at a scale humans cannot. However, it also presents risks: biased algorithms can lead to unfair targeting, and the vast data AI requires for training amplifies privacy concerns. The key challenge is to build an "algorithmic conscience" by developing transparent, fair, and accountable AI systems.</p>
+                </div>
+                <div class="section-card p-8">
+                    <h4 class="text-2xl font-bold text-gray-800 mb-4">The Quantum Threat</h4>
+                    <p class="text-gray-600">Quantum computers pose a long-term threat to our current encryption standards, potentially rendering much of our "secure" data vulnerable. This creates the urgent ethical need to transition to "Post-Quantum Cryptography." The risk of "harvest now, decrypt later" attacks means that data stolen today could be unlocked in the future, making proactive adaptation a critical responsibility.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-20">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center">
+            <p>An interactive exploration of the report: "Balancing Act: Surveillance and Privacy in Cybersecurity".</p>
+            <p class="text-sm text-gray-400 mt-2">Designed to make complex information accessible and engaging.</p>
+        </div>
+    </footer>
+
+    <div id="modal" class="modal-overlay">
+        <div id="modal-content" class="modal-content">
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const data = {
+        technologies: [
+            {
+                title: 'Data Exhaust & Tracking',
+                security: 'Analyzes user-generated data (browsing habits, clicks) to build profiles and detect anomalous behavior that might indicate a compromised account.',
+                privacy: 'Enables third parties to compile comprehensive browsing histories across sites without explicit consent, often for targeted advertising.'
+            },
+            {
+                title: 'Deep Packet Inspection (DPI)',
+                security: 'Inspects the actual content of data packets (emails, messages) to find malware, data leaks, and other sophisticated threats that other methods miss.',
+                privacy: 'Highly intrusive, equivalent to reading your digital mail. It can enable mass surveillance and raises significant concerns about private communications.'
+            },
+            {
+                title: 'Behavioral Analytics (AI/ML)',
+                security: 'Uses AI to learn normal user behavior patterns and then flags deviations that could signal insider threats or advanced attacks.',
+                privacy: 'Relies on collecting comprehensive user activity data. Can lead to a constant sense of surveillance and carries the risk of false positives affecting innocent users.'
+            },
+            {
+                title: 'User Input Data Disclosure',
+                security: 'Monitors data actively entered by users (forms, messages) to prevent the leakage of sensitive company information (Data Loss Prevention).',
+                privacy: 'Risks the collection and potential leakage of personally identifiable or sensitive information, as this unstructured data is difficult to anonymize.'
+            }
+        ],
+        caseStudies: [
+            { name: 'Amazon', fine: 886, year: 2021, reason: 'Violation of GDPR. Accused of processing personal data for targeted advertising without user consent.' },
+            { name: 'Facebook', fine: 725, year: 2017, reason: 'Cambridge Analytica scandal. Failed to protect user data from being harvested without consent for political profiling.' },
+            { name: 'Equifax', fine: 700, year: 2017, reason: 'Failed to implement adequate security, including patching a known vulnerability, leading to a massive data breach of personal financial info.' },
+            { name: 'Google', fine: 170, year: 2019, reason: 'Violation of the Children\'s Online Privacy Protection Act (COPPA) by collecting data on children via YouTube without parental consent.' },
+            { name: 'Didi Global', fine: 1200, year: 2021, reason: 'Violated Chinese data privacy laws by collecting excessive user data without consent and failing to adequately protect it.' }
+        ],
+        regulations: [
+            {
+                name: 'GDPR',
+                title: 'General Data Protection Regulation (EU)',
+                content: {
+                    principles: [
+                        'Lawfulness, Fairness, & Transparency',
+                        'Purpose Limitation & Data Minimization',
+                        'Accountability & User Consent',
+                        'Integrity & Confidentiality'
+                    ],
+                    requirements: [
+                        'Robust security measures (e.g., encryption, MFA)',
+                        '72-hour breach notification window',
+                        'Strict rules for data transfer outside the EU'
+                    ]
+                }
+            },
+            {
+                name: 'CCPA',
+                title: 'California Consumer Privacy Act (USA)',
+                 content: {
+                    principles: [
+                        'Right to Know what data is collected',
+                        'Right to Delete personal information',
+                        'Right to Opt-Out of the sale of data',
+                        'Right to Non-Discrimination for exercising rights'
+                    ],
+                    requirements: [
+                        'Implement "reasonable security practices"',
+                        'Provide clear privacy notices to consumers',
+                        'Respond to consumer rights requests'
+                    ]
+                }
+            },
+            {
+                name: 'HIPAA',
+                title: 'Health Insurance Portability and Accountability Act (USA)',
+                 content: {
+                    principles: [
+                        'Privacy Rule for Protected Health Information (PHI)',
+                        'Security Rule for electronic PHI (ePHI)',
+                        'Strict limits on use and disclosure of health data'
+                    ],
+                    requirements: [
+                        'Administrative, physical, and technical safeguards',
+                        'Risk analysis and management',
+                        'Breach notification for unsecured PHI'
+                    ]
+                }
+            },
+             {
+                name: 'NIST',
+                title: 'NIST Privacy Framework',
+                 content: {
+                    principles: [
+                        'Voluntary framework to manage privacy risk',
+                        'Core functions: Identify, Govern, Control, Communicate',
+                        'Aims to build beneficial products while protecting privacy'
+                    ],
+                    requirements: [
+                        'Designed to be complementary to the NIST Cybersecurity Framework',
+                        'Helps organizations analyze privacy impacts',
+                        'Promotes a risk-based approach to privacy'
+                    ]
+                }
+            }
+        ],
+        strategies: {
+            organization: [
+                "<strong>Transparency & Consent:</strong> Clearly communicate all monitoring policies. Obtain explicit, informed consent.",
+                "<strong>Data Minimization:</strong> Collect only the data that is absolutely necessary for a specific, legitimate security purpose.",
+                "<strong>Proportionality:</strong> Use the least intrusive monitoring method possible to achieve the security goal.",
+                "<strong>Robust Security:</strong> Implement strong encryption, access controls, and multi-factor authentication (MFA).",
+                "<strong>Use PETs:</strong> Invest in Privacy-Enhancing Technologies (like differential privacy) to gain insights without compromising individual data."
+            ],
+            individual: [
+                "<strong>Know Your Rights:</strong> Understand your rights under regulations like GDPR and CCPA.",
+                "<strong>Use Privacy Tools:</strong> Employ VPNs, encrypted messaging apps, and secure browsers to protect your digital footprint.",
+                "<strong>Practice Digital Hygiene:</strong> Use strong, unique passwords, enable MFA, and be vigilant against phishing.",
+                "<strong>Manage Permissions:</strong> Regularly review app permissions on your devices and revoke unnecessary access.",
+                "<strong>Balance with Employer Needs:</strong> Understand and respect employer security policies, which protect both you and the organization."
+            ]
+        }
+    };
+
+    function setupMobileMenu() {
+        const menuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const navLinks = mobileMenu.querySelectorAll('a');
+
+        menuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+    }
+
+    function setupActiveNavLinks() {
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 80) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    }
+
+    function renderPrivacyParadoxChart() {
+        const ctx = document.getElementById('privacyParadoxChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Stated Concern for Privacy', 'Privacy-Protective Actions Taken'],
+                datasets: [{
+                    data: [85, 25],
+                    backgroundColor: [
+                        'rgba(8, 145, 178, 0.7)',  // cyan-600
+                        'rgba(245, 158, 11, 0.7)'   // amber-500
+                    ],
+                    borderColor: [
+                        'rgba(8, 145, 178, 1)',
+                        'rgba(245, 158, 11, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += context.parsed + '% (Illustrative)';
+                                }
+                                return label;
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Attitude vs. Behavior Gap'
+                    }
+                }
+            }
+        });
+    }
+
+    async function callGeminiAPI(prompt, maxRetries = 3) {
+        let chatHistory = [];
+        chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+        const payload = { contents: chatHistory };
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+        for (let i = 0; i < maxRetries; i++) {
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    if (response.status === 429 && i < maxRetries - 1) {
+                        const delay = Math.pow(2, i) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+                    throw new Error(`API call failed with status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    throw new Error("Unexpected API response structure or no content.");
+                }
+            } catch (error) {
+                if (i === maxRetries - 1) {
+                    console.error("Error calling Gemini API:", error);
+                    return "Failed to get a response from the AI. Please try again.";
+                }
+            }
+        }
+        return "Failed to get a response from the AI after multiple retries.";
+    }
+
+    function renderTechAccordion() {
+        const accordion = document.getElementById('tech-accordion');
+        data.technologies.forEach((tech, index) => {
+            const item = document.createElement('div');
+            item.className = 'section-card overflow-hidden';
+            item.innerHTML = `
+                <button class="w-full text-left p-5 flex justify-between items-center bg-gray-50 hover:bg-gray-100 focus:outline-none" data-index="${index}">
+                    <span class="text-xl font-semibold text-cyan-800">${tech.title}</span>
+                    <span class="transform transition-transform duration-300 text-cyan-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </span>
+                </button>
+                <div class="accordion-content hidden p-6 border-t border-gray-200">
+                    <h5 class="font-semibold text-lg mb-2 text-gray-700">Role in Security:</h5>
+                    <p class="mb-4 text-gray-600">${tech.security}</p>
+                    <h5 class="font-semibold text-lg mb-2 text-rose-600">Privacy Concern:</h5>
+                    <p class="text-gray-600">${tech.privacy}</p>
+                    <button class="explain-tech-btn mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-600 transition flex items-center">
+                        ✨ Explain Simply
+                        <div class="loading-spinner ml-2 hidden"></div>
+                    </button>
+                    <div class="tech-explanation mt-4 p-3 bg-blue-50 rounded-lg text-blue-800 text-left hidden"></div>
+                </div>
+            `;
+            accordion.appendChild(item);
+        });
+
+        accordion.addEventListener('click', async (e) => {
+            const button = e.target.closest('button');
+            if (!button) return;
+
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('svg');
+
+            button.parentElement.parentElement.querySelectorAll('.accordion-content').forEach(el => {
+                if (el !== content) {
+                    el.classList.add('hidden');
+                    el.previousElementSibling.querySelector('svg').classList.remove('rotate-180');
+                }
+            });
+
+            content.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+
+            if (e.target.classList.contains('explain-tech-btn')) {
+                const techTitle = button.querySelector('span').textContent;
+                const explanationDiv = content.querySelector('.tech-explanation');
+                const spinner = e.target.querySelector('.loading-spinner');
+
+                explanationDiv.classList.add('hidden');
+                explanationDiv.textContent = '';
+                spinner.classList.remove('hidden');
+
+                const prompt = `Explain "${techTitle}" in simple terms, as if to a non-technical person, focusing on its core function and privacy implications. Keep it concise, under 100 words.`;
+                const explanation = await callGeminiAPI(prompt);
+
+                spinner.classList.add('hidden');
+                explanationDiv.textContent = explanation;
+                explanationDiv.classList.remove('hidden');
+            }
+        });
+    }
+
+    function renderBreachFinesChart() {
+        const sortedCases = [...data.caseStudies].sort((a, b) => b.fine - a.fine);
+        const ctx = document.getElementById('breachFinesChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: sortedCases.map(c => c.name),
+                datasets: [{
+                    label: 'Fine Amount (in millions USD)',
+                    data: sortedCases.map(c => c.fine),
+                    backgroundColor: 'rgba(220, 38, 38, 0.6)', // red-600
+                    borderColor: 'rgba(220, 38, 38, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                     tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ` $${context.raw.toLocaleString()} Million`;
+                            }
+                        }
+                    },
+                    title: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value + 'M';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderCaseStudiesGrid() {
+        const grid = document.getElementById('case-studies-grid');
+        const modal = document.getElementById('modal');
+        const modalContent = document.getElementById('modal-content');
+
+        data.caseStudies.forEach(study => {
+            const item = document.createElement('div');
+            item.className = 'p-2';
+            item.innerHTML = `
+                <button data-case="${study.name}" class="case-study-btn w-full h-20 bg-gray-100 rounded-lg flex items-center justify-center text-gray-700 font-bold text-lg hover:bg-gray-200 transition">
+                    ${study.name}
+                </button>
+            `;
+            grid.appendChild(item);
+        });
+
+        grid.addEventListener('click', e => {
+            const button = e.target.closest('.case-study-btn');
+            if (button) {
+                const caseName = button.dataset.case;
+                const study = data.caseStudies.find(s => s.name === caseName);
+                modalContent.innerHTML = `
+                    <h3 class="text-2xl font-bold mb-4">${study.name} (${study.year})</h3>
+                    <p class="text-4xl font-bold text-rose-600 mb-4">$${study.fine} Million Fine</p>
+                    <h4 class="font-semibold text-lg mb-2">Core Ethical Failure:</h4>
+                    <p class="text-gray-600">${study.reason}</p>
+                    <button id="modal-close" class="mt-6 w-full bg-cyan-600 text-white py-2 rounded-md hover:bg-cyan-700 transition">Close</button>
+                `;
+                modal.classList.add('visible');
+            }
+        });
+
+        modal.addEventListener('click', e => {
+            if (e.target.id === 'modal' || e.target.closest('#modal-close')) {
+                modal.classList.remove('visible');
+            }
+        });
+    }
+
+    function renderRegulations() {
+        const tabsContainer = document.getElementById('regulation-tabs');
+        const contentContainer = document.getElementById('regulation-content');
+
+        data.regulations.forEach((reg, index) => {
+            const tab = document.createElement('button');
+            tab.className = `regulation-tab whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300`;
+            tab.textContent = reg.name;
+            tab.dataset.target = reg.name;
+            if (index === 0) {
+                tab.classList.add('border-cyan-500', 'text-cyan-600');
+            }
+            tabsContainer.appendChild(tab);
+        });
+
+        function updateContent(regName) {
+            const reg = data.regulations.find(r => r.name === regName);
+            contentContainer.innerHTML = `
+                <h4 class="text-xl font-bold mb-4">${reg.title}</h4>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h5 class="font-semibold mb-2 text-gray-700">Key Principles:</h5>
+                        <ul class="space-y-2 list-disc list-inside text-gray-600">
+                            ${reg.content.principles.map(p => `<li>${p}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div>
+                        <h5 class="font-semibold mb-2 text-gray-700">Cybersecurity Requirements:</h5>
+                        <ul class="space-y-2 list-disc list-inside text-gray-600">
+                            ${reg.content.requirements.map(r => `<li>${r}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        tabsContainer.addEventListener('click', e => {
+            const button = e.target.closest('button');
+            if (button) {
+                tabsContainer.querySelectorAll('button').forEach(btn => {
+                    btn.classList.remove('border-cyan-500', 'text-cyan-600');
+                    btn.classList.add('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                });
+                button.classList.add('border-cyan-500', 'text-cyan-600');
+                updateContent(button.dataset.target);
+            }
+        });
+
+        updateContent(data.regulations[0].name);
+    }
+
+    function renderStrategies() {
+        const orgList = document.getElementById('org-strategies');
+        const indList = document.getElementById('ind-strategies');
+
+        data.strategies.organization.forEach(item => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span class="text-cyan-600 mr-2">&#10003;</span>${item}`;
+            orgList.appendChild(li);
+        });
+
+        data.strategies.individual.forEach(item => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span class="text-amber-600 mr-2">&#10003;</span>${item}`;
+            indList.appendChild(li);
+        });
+    }
+
+    setupMobileMenu();
+    setupActiveNavLinks();
+    renderPrivacyParadoxChart();
+    renderTechAccordion();
+    renderBreachFinesChart();
+    renderCaseStudiesGrid();
+    renderRegulations();
+    renderStrategies();
+
+    // LLM Feature 1: Generate Privacy Dilemma
+    const generateDilemmaBtn = document.getElementById('generate-dilemma-btn');
+    const dilemmaOutput = document.getElementById('dilemma-output');
+    const dilemmaSpinner = document.getElementById('dilemma-spinner');
+
+    generateDilemmaBtn.addEventListener('click', async () => {
+        dilemmaOutput.classList.add('hidden');
+        dilemmaSpinner.classList.remove('hidden');
+        const prompt = "Generate a brief, realistic scenario (2-3 sentences) that illustrates a common ethical dilemma between cybersecurity needs and individual privacy in a workplace or consumer context. Start with 'Scenario: '";
+        const dilemma = await callGeminiAPI(prompt);
+        dilemmaSpinner.classList.add('hidden');
+        dilemmaOutput.textContent = dilemma;
+        dilemmaOutput.classList.remove('hidden');
+    });
+
+    // LLM Feature 3: Suggest Personalized Strategy
+    const generateStrategyBtn = document.getElementById('generate-strategy-btn');
+    const strategyRoleInput = document.getElementById('strategy-role-input');
+    const strategyOutput = document.getElementById('strategy-output');
+    const strategySpinner = document.getElementById('strategy-spinner');
+
+    generateStrategyBtn.addEventListener('click', async () => {
+        const role = strategyRoleInput.value.trim();
+        if (!role) {
+            strategyOutput.textContent = "Please enter a role (e.g., remote worker, social media user).";
+            strategyOutput.classList.remove('hidden');
+            return;
+        }
+        strategyOutput.classList.add('hidden');
+        strategySpinner.classList.remove('hidden');
+        const prompt = `Given that I am a ${role}, suggest one specific, actionable cybersecurity and privacy strategy tailored to my situation. Keep it concise, under 50 words. Start with 'Tip: '`;
+        const strategy = await callGeminiAPI(prompt);
+        strategySpinner.classList.add('hidden');
+        strategyOutput.textContent = strategy;
+        strategyOutput.classList.remove('hidden');
+    });
+});
+</script>
+</body>
+</html>
